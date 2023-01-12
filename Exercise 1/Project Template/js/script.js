@@ -13,7 +13,9 @@ author, and this description to match your project!
 Description of preload
 */
 function preload() {
-
+   
+    
+    
 }
 
 
@@ -21,7 +23,8 @@ function preload() {
 Description of setup
 */
 function setup() {
-
+    createCanvas(500, 500);
+    background(0, 255, 0);
 }
 
 
