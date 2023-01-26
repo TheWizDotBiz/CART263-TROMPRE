@@ -88,4 +88,5 @@ class Line{
     }
 
     //should add a jitter function here, jittery stuff might represent anxiety or something
+    //what about a face madeof lines that follows the mouse cursor? then make it jitter i suppose lol.
 }
