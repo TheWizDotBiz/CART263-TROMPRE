@@ -17,34 +17,38 @@ var eyebrowLeft;
 //sweat beads;
 var testSweatBead;
 var SweatBeads = [];
-var initBeadCount = 20;
+var initBeadCount = 100;
 
-function preload(){
-    
-}
+//microphone for interactivity
+var mic;
+var sweatDropTimer = 0;
+var sweatDropTimerLimit = 0.1;
+
 
 function setup(){
+    mic = new p5.AudioIn();
+    mic.start();
     createCanvas(windowWidth, windowHeight);
     angleMode(DEGREES);
     rectMode(CENTER);
     eyebrowRight = new eyebrow("right");
     eyebrowLeft = new eyebrow("left");
-    testSweatBead = new sweatBead(random(0.05, 0.5));
+    testSweatBead = new sweatBead(random(0.05, 0.5), mouseX, mouseY);
     for(var i = 0;i < initBeadCount; i++){
-        SweatBeads[i] = new sweatBead(random(0.05, 0.5));
+        SweatBeads[i] = new sweatBead(random(0.05, 0.5), mouseX, mouseY);
     }
     
 }
 
 function draw(){
+    //print(mic.getLevel()); returns values from 0 to 1, based on volume input of microphone
     background(0, 0, 0);
     translate(mouseX, mouseY); //THIS SETS THE ORIGIN POINT OF THE CANVAS TO THE MOUSE POSITION EVERY FRAME! MEANS THAT 0, 0 RETURNS MOUSEPOS, MIGHT BE A TERRIBLE IDEA
     //render sweat here
     ///testSweatBead.display();
     testSweatBead.newDisplay();  
     for(var i = 0; i < SweatBeads.length; i++){
-        SweatBeads[i].newDisplay();
-        
+        SweatBeads[i].newDisplay();  
     } 
     verifySweatOutOfBounds(); 
     
@@ -52,26 +56,30 @@ function draw(){
     
    // eyebrowRight.display();
     //eyebrowLeft.display();
+
+    adjustSweatCount();
     time += deltaTime * 100; //this is mostly used to make the eyebrows shake, might wanna create another timer for the sweat drops n shit
 }
 
-function eyeBrows(){
+function eyeBrows(){ //renders and makes the eyebrows shake
     push();
     noStroke();
-    fill(255, 255, 255, 255);
+    fill(0, 0, 0, 255);
     //left
     
     //print(sin(time));   
     rotate(eyebrowRotate);
-    rect(0 - eyebrowOffset + sin(time) * 5, 0, eyebrowLength, eyebrowWidth);
+    rect(0 - eyebrowOffset + sin(time) * (initBeadCount / 10), 75, eyebrowLength, eyebrowWidth);
     //right
     rotate((eyebrowRotate * 2) * -1);
-    rect(0 + eyebrowOffset + sin(time) * 5, 0, eyebrowLength, eyebrowWidth)
+    rect(0 + eyebrowOffset + sin(time) * (initBeadCount / 10), 75, eyebrowLength, eyebrowWidth)
 
+    //rotate reset?
+    resetMatrix();
     pop();
 }
 
-function verifySweatOutOfBounds(){
+function verifySweatOutOfBounds(){ //deletes sweatbeads and creates new ones if they fall out of bounds
     for(var i = 0; i < SweatBeads.length; i++){
         if(SweatBeads[i].y1 >= height){
             SweatBeads.splice(i, 1);
@@ -80,45 +88,67 @@ function verifySweatOutOfBounds(){
     }
 
     if(SweatBeads.length < initBeadCount){
-        SweatBeads.push(new sweatBead(random(0.05, 0.5)));
+        SweatBeads.push(new sweatBead(random(0.05, 0.5), mouseX, mouseY));
+    }
+}
+
+function adjustSweatCount(){ //this makes the amount of sweat bead drop off over time to simulate it calming down, or increases it when you scream at it. also affects how much the eyebrows shake
+    var vol = mic.getLevel();
+    if(vol >= 0.1){
+        print("adding sweat");
+        initBeadCount++;
+    }else if(initBeadCount > 0){
+        sweatDropTimer += deltaTime;
+        if(sweatDropTimer >= sweatDropTimerLimit * 1000 && initBeadCount >= 11){
+            print("dropping a sweat");
+            initBeadCount--;
+            sweatDropTimer = 0;
+        }
+    }else{
+        initBeadCount = 0;
     }
 }
 
 class sweatBead{ //a line with two coordiantes for the start and end, a length (distance between two points) and some variable to make it rotate and fall downwards.
-    constructor(length){
+    constructor(length, posX, posY){ //posX and posY being mouseX and mouseY
+        var init = random(-100, 100);
+        var initY = random(-50, 50);
         this.speed = 0.01;
-        this.x1 = mouseX;
-        this.x2 = mouseX;
-        this.y1 = mouseY;
-        this.y2 = mouseY;
-        this.length = length;
-        this.lifetime = 0;
+        this.x1 = init; //these are set around 0 and not mouseX and stuff becuase of the eyebrow thing and the translate mousepos stuff making it so the origin of the canvas is the same as the mouse position
+        this.x2 = init;
+        this.y1 = initY;
+        this.y2 = initY;
+        this.length = length; //how long you want the sweatbead to be
+        this.lifetime = 0; //time in ms of sweatbead's lifetime, affects things like detaching itself from the origin and color
        // this.timeLimit = random(0.1, 1);
-        this.str = random(10, 25);
+        this.str = random(10, 25); //the str at which it is flung out horizontally
         this.initStr = this.str;
-        this.falloff = 1;
-        this.dir = round(random(-1, 1));
+        this.falloff = 1; //falloff for the horizontal fling
+        this.dir = round(random(-1, 2)); //which direction will it fling towards
+       
+        if(this.dir > 0){
+            this.dir = 1;
+        }else{
+            this.dir = -1;
+        }
+        //print(this.dir);
+        //print("start x is "  + this.x1 + "start y is " + this.y1);
     }
 
     newDisplay(){
-        print(mouseX);
-        stroke(0, 255, 0, 255);
+        //print(mouseX);
+        //stroke('#00FFFF');
+        stroke(0, 255 - this.lifetime / 3,  255 - this.lifetime / 3);
         strokeWeight(1);
         this.lifetime += deltaTime;
         if(this.str != 0){
-            if(this.dir = 1){
                 this.str -= this.falloff;
                 if(this.str < 0){
                     this.str = 0;
                 }
-            }else{
-                this.str += this.falloff;
-                if(this.str > 0){
-                    this.str = 0;
-                }
-            }
         }
-        this.x2 += this.str * this.dir;
+        //print("with dir " + this.dir +  " we are moving by " + this.str * this.dir);
+        this.x2 += this.str * this.dir + (random(-10,10));
         this.y2 += this.initStr - this.str;
         //print(this.lifetime / 1000 + " " + this.length)
         if(this.lifetime / 1000 >= this.length){
@@ -130,57 +160,5 @@ class sweatBead{ //a line with two coordiantes for the start and end, a length (
         }
         line(this.x1, this.y1, this.x2, this.y2);
        // print(this.x2 + " " + this.y2);
-    }
-
-    display(){
-        stroke(0, 255, 0, 255);
-        strokeWeight(5);
-        this.lifetime += deltaTime * this.speed;
-        this.x2 += log(this.lifetime);
-        this.y2 += this.speed - (1 - log(this.lifetime));
-        if(dist(this.x1, this.x2) >= this.length){
-            this.x1 += log(this.lifetime);
-            this.y1 += this.speed - (1 - log(this.lifetime));
-        }
-        //print(this.x2);
-        line(this.x1, this.y1, this.x2, this.y2);
-
-
-        
-    }
-}
-
-//this is deprecated, bask in the glory of it's bit-ridden corpse.
-class eyebrow{
-    constructor(side){
-        this.side = side;
-        if(this.side = "left"){
-            this.rotation = eyebrowRotate
-            this.x = mouseX - eyebrowOffset;
-        }else{
-            this.rotation = (eyebrowRotate * 2) * -1;
-            this.x = mouseX + eyebrowOffset;
-        }
-       // this.x = mouseX;
-        this.y = mouseY;
-        this.length = eyebrowLength;
-        this.width = eyebrowWidth;
-        this.shakes = 0;
-        
-       
-    }
-
-    display(){
-        fill(255, 255, 255, 255);
-        translate(mouseX, mouseY);
-        rotate(this.rotation)
-        this.shakes += sin(deltaTime);
-        if(this.side == "left"){
-            this.x = mouseX - eyebrowRotate + this.shakes;
-        }else{
-            this.x = mouseX + eyebrowRotate + this.shakes;
-        }
-        this.y = mouseY;
-        rect(this.x, this.y, this.length, this.width);
     }
 }
