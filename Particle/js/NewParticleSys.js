@@ -31,8 +31,6 @@ function setup(){
     createCanvas(windowWidth, windowHeight);
     angleMode(DEGREES);
     rectMode(CENTER);
-    eyebrowRight = new eyebrow("right");
-    eyebrowLeft = new eyebrow("left");
     testSweatBead = new sweatBead(random(0.05, 0.5), mouseX, mouseY);
     for(var i = 0;i < initBeadCount; i++){
         SweatBeads[i] = new sweatBead(random(0.05, 0.5), mouseX, mouseY);
