@@ -1,19 +1,22 @@
-# Template p5 project
+# Data Viz project: Fireball Simulation
 
-## What is a read me file?
-This is the README file for the entire project. For more official projects you should write information here about the nature of the project, your name, any special explanations of how the project works, etc.
+## What does it do?
+Using a database of (most) of the 5th edition dungeons and dragons monsters, this simulates and displays the effects of casting a Fireball spell on a randomly generated group of monsters.
 
-README files are written in [markdown](https://www.markdownguide.org/cheat-sheet/) to format them. Your readme file should contain all the information about your project, and if needed, how to run it. If you need or use libraries or dependencies, list them here and link to where the user can find the appropriate information. 
+## How do i use it
+Using the up n down arrow keys to increase or decrease your level, this affects your Spell Save DC (makes monster less likely to succeed their saving throw against the fireball) and the level at which the wizard is capable of casting the fireball, increasing it's damage.
 
-## This template
-This is a p5js template for CART263. You can use this as a starting point for your project. To use this template: 
-* Copy the folder to your computer 
-* Open it in your favorite code editor, we suggest VSCode
-* Install the live server extension 
-* Click "Go Live" and view your code!
+Use the left and right arrow keys to adjust your intelligence score, this affects your Spell Save DC
 
-## Editing files
-* **Index.html** contains your HTML structure of the project. If you need to add libraries or other files of code, link them in this file. 
-* **js/script.js** this is where you edit most of your P5 code.  
-* **js/libraries** this is where you add any additional libraries.
-* **assets** folder contains any images, videos, audio or other files needed to make your project work. 
+Press R to generate new monsters.
+Press Space to fire!
+
+## How does a fireball even work
+http://dnd5e.wikidot.com/spell:fireball
+It fires an explosive ball of fire (hence the name) that deals 8d6 points of fire damage to creatures in the area (i.e the sum of eight six-sided die rolls).
+Affected creatures  are allowed a dexterity saving throw, by rolling a twenty-sided die and adding their dexterity modifier (determined by their dexterity score). If the amount rolled is equal to or greater than the caster's Spell Save DC, the saving throw is successful, and the creature only takes half damage from the spell.
+
+A higher level spellcaster can cast a fireball at a higher spell level, for every spell level above 3rd (the base level of fireball) the damage increases by 1d6.
+
+## this is another dnd project is it
+yea oop
